@@ -1,9 +1,24 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { Apple, BadgeCheck, Check, Play, ShieldCheck } from "lucide-react-native";
-import { useAssinatura, type MotivoPaywall } from "@/context/SubscriptionContext";
+import {
+  Apple,
+  BadgeCheck,
+  Check,
+  Play,
+  ShieldCheck,
+} from "lucide-react-native";
+import {
+  useAssinatura,
+  type MotivoPaywall,
+} from "@/context/SubscriptionContext";
 import { usePerfil } from "@/context/PerfilContext";
 import { BENEFICIOS } from "@/data/planos";
 import type { PlanoId, PlanoOferta } from "@/types";
@@ -23,9 +38,11 @@ import { CarimboAprovado } from "@/components/CarimboAprovado";
  */
 const URL_TERMOS =
   process.env.EXPO_PUBLIC_URL_TERMOS ||
-  "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
+  "https://app.notion.com/p/Termos-de-Uso-Completo-Gabarito-39fbd4163b3b81018e64d954d4800b5b?source=copy_link";
+
 const URL_PRIVACIDADE =
-  process.env.EXPO_PUBLIC_URL_PRIVACIDADE || "https://gabarito.com.br/privacidade";
+  process.env.EXPO_PUBLIC_URL_PRIVACIDADE ||
+  "https://app.notion.com/p/Pol-tica-de-Privacidade-Completa-Gabarito-39fbd4163b3b8151b47cc6ade8c85ff0?source=copy_link";
 
 /** Marca-texto — no RN um <Text> aninhado com fundo vira grifo de verdade. */
 function Grifo({ children }: { children: ReactNode }) {
@@ -123,11 +140,17 @@ function copyDoMotivo(
 }
 
 /** Texto legal da renovação. A loja exige e o usuário merece. */
-function textoRenovacao(oferta: PlanoOferta | undefined, trial: number): string {
+function textoRenovacao(
+  oferta: PlanoOferta | undefined,
+  trial: number,
+): string {
   const loja = Platform.OS === "ios" ? "App Store" : "Google Play";
   const preco = oferta?.precoLabel ?? "";
   const periodo = oferta?.id === "anual" ? "ano" : "mês";
-  const inicio = trial > 0 ? `Depois dos ${trial} dias de teste grátis, a assinatura ` : "A assinatura ";
+  const inicio =
+    trial > 0
+      ? `Depois dos ${trial} dias de teste grátis, a assinatura `
+      : "A assinatura ";
   return (
     `${inicio}renova automaticamente por ${preco}/${periodo} e é cobrada na sua conta da ${loja}. ` +
     `Cancele quando quiser, até 24 h antes da renovação, direto nos ajustes da ${loja}.`
@@ -165,7 +188,9 @@ export function Paywall({
   const [escolhido, setPlano] = useState<PlanoId>("anual");
   // A loja manda no que existe: se o plano escolhido sumiu do offering,
   // caímos no primeiro disponível em vez de renderizar um cartão vazio.
-  const plano = ofertas.some((o) => o.id === escolhido) ? escolhido : (ofertas[0]?.id ?? escolhido);
+  const plano = ofertas.some((o) => o.id === escolhido)
+    ? escolhido
+    : (ofertas[0]?.id ?? escolhido);
 
   useEffect(() => {
     if (contexto === "onboarding") setMotivoPaywall("onboarding");
@@ -285,8 +310,15 @@ export function Paywall({
           accessibilityRole="button"
         >
           <View style={s.linhaCentro}>
-            {restaurando && <ActivityIndicator size="small" color={cor.azulInk} />}
-            <Texto v="peq" center c={cor.azulInk} style={{ fontFamily: fonte.sansMedium }}>
+            {restaurando && (
+              <ActivityIndicator size="small" color={cor.azulInk} />
+            )}
+            <Texto
+              v="peq"
+              center
+              c={cor.azulInk}
+              style={{ fontFamily: fonte.sansMedium }}
+            >
               já assinou? restaurar compras
             </Texto>
           </View>
@@ -306,7 +338,10 @@ export function Paywall({
         {textoRenovacao(atual, trial)}
       </Texto>
       <View style={s.links}>
-        <Pressable onPress={() => void WebBrowser.openBrowserAsync(URL_TERMOS)} hitSlop={8}>
+        <Pressable
+          onPress={() => void WebBrowser.openBrowserAsync(URL_TERMOS)}
+          hitSlop={8}
+        >
           <Texto v="micro" c={cor.ink2} style={s.link}>
             Termos de uso
           </Texto>
@@ -353,17 +388,28 @@ function CartaoPlano({
   onPress: () => void;
 }) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected: on }}>
-      <Card style={[s.plano, on ? { borderColor: cor.azul, borderWidth: 2 } : null]} lift={on}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: on }}
+    >
+      <Card
+        style={[s.plano, on ? { borderColor: cor.azul, borderWidth: 2 } : null]}
+        lift={on}
+      >
         {oferta.destaque && (
           <View style={s.destaque}>
             <Badge tom="mark" mono>
-              {oferta.economiaPct ? `economize ${oferta.economiaPct}%` : "melhor valor"}
+              {oferta.economiaPct
+                ? `economize ${oferta.economiaPct}%`
+                : "melhor valor"}
             </Badge>
           </View>
         )}
         <View style={s.planoTopo}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: esp.sm }}>
+          <View
+            style={{ flexDirection: "row", alignItems: "center", gap: esp.sm }}
+          >
             <Texto v="h2">{oferta.nome}</Texto>
             {oferta.trialDias > 0 && (
               <Badge tom="ok" mono>
@@ -371,7 +417,12 @@ function CartaoPlano({
               </Badge>
             )}
           </View>
-          <View style={[s.radio, on ? { borderColor: cor.azul, backgroundColor: cor.azul } : null]}>
+          <View
+            style={[
+              s.radio,
+              on ? { borderColor: cor.azul, backgroundColor: cor.azul } : null,
+            ]}
+          >
             {on && <Check size={12} color={cor.branco} />}
           </View>
         </View>
@@ -411,11 +462,17 @@ function ConfigAusente() {
         <View style={{ flex: 1 }}>
           <Texto v="h3">Assinatura ainda não configurada</Texto>
           <Texto v="peq" style={{ marginTop: 4, lineHeight: 20 }}>
-            Defina <Texto v="mono" style={s.code}>EXPO_PUBLIC_RC_IOS_KEY</Texto> e{" "}
-            <Texto v="mono" style={s.code}>EXPO_PUBLIC_RC_ANDROID_KEY</Texto> com as chaves
-            públicas do seu projeto no RevenueCat, crie os produtos na App Store Connect /
-            Play Console e rode um development build. Os preços acima são só de exibição.
-            Veja o README.
+            Defina{" "}
+            <Texto v="mono" style={s.code}>
+              EXPO_PUBLIC_RC_IOS_KEY
+            </Texto>{" "}
+            e{" "}
+            <Texto v="mono" style={s.code}>
+              EXPO_PUBLIC_RC_ANDROID_KEY
+            </Texto>{" "}
+            com as chaves públicas do seu projeto no RevenueCat, crie os
+            produtos na App Store Connect / Play Console e rode um development
+            build. Os preços acima são só de exibição. Veja o README.
           </Texto>
         </View>
       </View>
@@ -441,7 +498,11 @@ const s = StyleSheet.create({
   // planos
   plano: { padding: esp.xl },
   destaque: { position: "absolute", top: -10, right: 14, zIndex: 1 },
-  planoTopo: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  planoTopo: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   radio: {
     width: 22,
     height: 22,
@@ -451,8 +512,18 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  precoLinha: { flexDirection: "row", alignItems: "flex-end", gap: 4, marginTop: esp.md },
-  preco: { fontSize: 30, lineHeight: 34, fontFamily: fonte.monoBold, letterSpacing: -0.8 },
+  precoLinha: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 4,
+    marginTop: esp.md,
+  },
+  preco: {
+    fontSize: 30,
+    lineHeight: 34,
+    fontFamily: fonte.monoBold,
+    letterSpacing: -0.8,
+  },
   precoSkeleton: {
     width: 110,
     height: 30,
@@ -477,7 +548,12 @@ const s = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
   },
-  linhaCentro: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  linhaCentro: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
   iconeAviso: {
     width: 36,
     height: 36,
