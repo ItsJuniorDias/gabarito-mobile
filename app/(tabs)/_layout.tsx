@@ -65,7 +65,9 @@ export default function TabsLayout() {
         />
         <NativeTabs.Trigger.Label>Caderno</NativeTabs.Trigger.Label>
         {erros.length > 0 && (
-          <NativeTabs.Trigger.Badge>{String(erros.length)}</NativeTabs.Trigger.Badge>
+          <NativeTabs.Trigger.Badge>
+            {String(erros.length)}
+          </NativeTabs.Trigger.Badge>
         )}
       </NativeTabs.Trigger>
 
@@ -110,23 +112,18 @@ function AcessorioRevisao({ total }: { total: number }) {
       <View style={s.circulo}>
         <RotateCcw size={15} color={cor.branco} />
       </View>
-      {compacto ? (
-        <Texto v="mono" c={cor.ink} style={{ fontSize: 13 }}>
-          {total}
+
+      <View style={{ flex: 1 }}>
+        <Texto v="h3" style={{ fontSize: 14 }} numberOfLines={1}>
+          Revisão do dia
         </Texto>
-      ) : (
-        <>
-          <View style={{ flex: 1 }}>
-            <Texto v="h3" style={{ fontSize: 14 }} numberOfLines={1}>
-              Revisão do dia
-            </Texto>
-            <Texto v="micro" numberOfLines={1}>
-              {`${total} questã${total === 1 ? "o" : "es"} vencida${total === 1 ? "" : "s"}`}
-            </Texto>
-          </View>
-          <ChevronRight size={17} color={cor.ink3} />
-        </>
-      )}
+
+        <Texto v="micro" numberOfLines={1}>
+          {`${total} questã${total === 1 ? "o" : "es"} vencida${total === 1 ? "" : "s"}`}
+        </Texto>
+      </View>
+
+      <ChevronRight size={17} color={cor.ink3} />
     </Pressable>
   );
 }
