@@ -242,7 +242,7 @@ export function Paywall({
       </View>
 
       {/* ── Planos ── */}
-      <View style={{ marginTop: esp.xxxl, gap: esp.md }}>
+      <View style={s.planos}>
         {ofertas.map((o) => (
           <CartaoPlano
             key={o.id}
@@ -376,6 +376,9 @@ export function Paywall({
 
 // ── Cartão de plano ───────────────────────────────────────────
 
+/** Quanto da tag sobe pra fora do card. Metade da altura dela, na prática. */
+const SOBRA_TAG = 10;
+
 function CartaoPlano({
   oferta,
   on,
@@ -390,6 +393,7 @@ function CartaoPlano({
   return (
     <Pressable
       onPress={onPress}
+      style={s.planoWrap}
       accessibilityRole="radio"
       accessibilityState={{ selected: on }}
     >
@@ -397,15 +401,6 @@ function CartaoPlano({
         style={[s.plano, on ? { borderColor: cor.azul, borderWidth: 2 } : null]}
         lift={on}
       >
-        {oferta.destaque && (
-          <View style={s.destaque}>
-            <Badge tom="mark" mono>
-              {oferta.economiaPct
-                ? `economize ${oferta.economiaPct}%`
-                : "melhor valor"}
-            </Badge>
-          </View>
-        )}
         <View style={s.planoTopo}>
           <View
             style={{ flexDirection: "row", alignItems: "center", gap: esp.sm }}
@@ -446,6 +441,23 @@ function CartaoPlano({
           </Texto>
         )}
       </Card>
+
+      {/*
+        Irmã do Card, não filha: o Card clipa (overflow hidden pro borderRadius)
+        e comia a metade de cima da tag — zIndex não vence clipping do pai.
+        O Pressable não clipa, então aqui ela vaza à vontade. Vem DEPOIS do Card
+        no JSX pra ganhar a ordem de pintura no iOS; no Android quem decide é o
+        elevation, daí o elevation em s.destaqueZ.
+      */}
+      {oferta.destaque && (
+        <View style={s.destaqueZ} pointerEvents="none">
+          <Badge tom="mark" mono style={s.destaqueTag}>
+            {oferta.economiaPct
+              ? `economize ${oferta.economiaPct}%`
+              : "melhor valor"}
+          </Badge>
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -496,8 +508,28 @@ const s = StyleSheet.create({
   },
   carimboWrap: { marginTop: esp.xxxl, alignItems: "center" },
   // planos
+  planos: {
+    marginTop: esp.xxxl,
+    // O gap tem que ser maior que SOBRA_TAG, senão a tag do Anual invade a
+    // borda de baixo do Mensal em vez de flutuar no respiro entre os dois.
+    gap: Math.max(esp.md, SOBRA_TAG + 4),
+    overflow: "visible",
+  },
+  planoWrap: { overflow: "visible" },
   plano: { padding: esp.xl },
-  destaque: { position: "absolute", top: -10, right: 14, zIndex: 1 },
+  destaqueZ: {
+    position: "absolute",
+    top: -SOBRA_TAG,
+    right: 14,
+    zIndex: 3,
+    elevation: 8, // sem background aqui: sobe o Z no Android sem desenhar sombra
+  },
+  destaqueTag: {
+    // Opaca de propósito. O tom `mark` do Badge é alpha 0.4: na metade de fora
+    // ela compõe sobre o papel e na de dentro sobre o card, ficando bicolor, e
+    // a borda azul de 2px do card selecionado atravessa a tag.
+    backgroundColor: cor.mark,
+  },
   planoTopo: {
     flexDirection: "row",
     alignItems: "center",

@@ -12,6 +12,9 @@ const tons: Record<Tom, { bg: string; fg: string; br: string }> = {
   mark: { bg: alpha(cor.mark, 0.4), fg: cor.ink, br: alpha(cor.markDeep, 0.4) },
 };
 
+/** O RN aplica letterSpacing depois do último glifo também — daí a compensação. */
+const LS_MONO = 0.8;
+
 export function Badge({
   children,
   tom = "neutral",
@@ -27,7 +30,12 @@ export function Badge({
   return (
     <View style={[s.wrap, { backgroundColor: t.bg, borderColor: t.br }, style]}>
       {typeof children === "string" ? (
-        <Text style={[s.txt, mono && s.mono, { color: t.fg }]} numberOfLines={1}>
+        <Text
+          style={[s.txt, mono && s.mono, { color: t.fg }]}
+          numberOfLines={1}
+          // Chip de UI, não conteúdo: acima disso "economize 16%" estoura a tag.
+          maxFontSizeMultiplier={1.2}
+        >
           {children}
         </Text>
       ) : (
@@ -63,10 +71,17 @@ const s = StyleSheet.create({
     paddingVertical: 3,
     alignSelf: "flex-start",
   },
-  txt: { fontFamily: fonte.sansMedium, fontSize: 11, lineHeight: 13 },
+  txt: {
+    fontFamily: fonte.sansMedium,
+    fontSize: 11,
+    lineHeight: 14,
+    includeFontPadding: false,
+    textAlignVertical: "center",
+  },
   mono: {
     fontFamily: fonte.monoMedium,
     textTransform: "uppercase",
-    letterSpacing: 0.8,
+    letterSpacing: LS_MONO,
+    marginRight: -LS_MONO,
   },
 });
