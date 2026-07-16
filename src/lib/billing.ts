@@ -30,7 +30,7 @@ import { read, remove, write } from "@/lib/kv";
 
 /** Chave PÚBLICA do RevenueCat (appl_… / goog_…). Pode ir no bundle. */
 const API_KEY = Platform.select({
-  ios: process.env.EXPO_PUBLIC_RC_IOS_KEY || "test_zTNTilbnmUZRfSnHzaQsmLqTyeT",
+  ios: process.env.EXPO_PUBLIC_RC_IOS_KEY || "appl_yCKmoJOTibjogzNRddvWTrIzrqa",
   android:
     process.env.EXPO_PUBLIC_RC_ANDROID_KEY ||
     "test_zTNTilbnmUZRfSnHzaQsmLqTyeT",
