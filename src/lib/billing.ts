@@ -30,13 +30,15 @@ import { read, remove, write } from "@/lib/kv";
 
 /** Chave PÚBLICA do RevenueCat (appl_… / goog_…). Pode ir no bundle. */
 const API_KEY = Platform.select({
-  ios: process.env.EXPO_PUBLIC_RC_IOS_KEY,
-  android: process.env.EXPO_PUBLIC_RC_ANDROID_KEY,
+  ios: process.env.EXPO_PUBLIC_RC_IOS_KEY || "test_zTNTilbnmUZRfSnHzaQsmLqTyeT",
+  android:
+    process.env.EXPO_PUBLIC_RC_ANDROID_KEY ||
+    "test_zTNTilbnmUZRfSnHzaQsmLqTyeT",
   default: undefined,
 });
 
 /** Identificador do entitlement no dashboard do RevenueCat. */
-const ENTITLEMENT = process.env.EXPO_PUBLIC_RC_ENTITLEMENT || "premium";
+const ENTITLEMENT = process.env.EXPO_PUBLIC_RC_ENTITLEMENT || "Gabarito Pro";
 
 /** Offering específico. Vazio = usa o `current` (o que o dashboard mandar). */
 const OFFERING = process.env.EXPO_PUBLIC_RC_OFFERING || "";
@@ -105,7 +107,8 @@ export function traduzErro(e: unknown): BillingError {
   if (e instanceof BillingError) return e;
 
   const err = e as { code?: string; message?: string; userCancelled?: boolean };
-  if (err?.userCancelled) return new BillingError("Compra cancelada.", "cancelado");
+  if (err?.userCancelled)
+    return new BillingError("Compra cancelada.", "cancelado");
 
   switch (err?.code) {
     case PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR:
@@ -262,7 +265,9 @@ function trialDias(p: PurchasesStoreProduct): number {
 }
 
 function acharPacote(o: PurchasesOffering, id: PlanoId, packageId: string) {
-  const porIdentificador = o.availablePackages.find((p) => p.identifier === packageId);
+  const porIdentificador = o.availablePackages.find(
+    (p) => p.identifier === packageId,
+  );
   if (porIdentificador) return porIdentificador;
   return id === "anual" ? o.annual : o.monthly;
 }
@@ -295,7 +300,10 @@ export async function carregarOfertas(): Promise<PlanoOferta[]> {
       produtoParaPlano.set(pkg.product.identifier, plano.id);
     }
     return { plano, pkg };
-  }).filter((x): x is { plano: (typeof PLANOS)[number]; pkg: PurchasesPackage } => !!x.pkg);
+  }).filter(
+    (x): x is { plano: (typeof PLANOS)[number]; pkg: PurchasesPackage } =>
+      !!x.pkg,
+  );
 
   const mensal = achados.find((x) => x.plano.id === "mensal");
 
@@ -303,7 +311,8 @@ export async function carregarOfertas(): Promise<PlanoOferta[]> {
     const p = pkg.product;
     // Comparar preço só faz sentido na mesma moeda (é sempre a mesma conta,
     // mas a loja pode devolver produtos de storefronts diferentes em teste).
-    const comparavel = mensal && mensal.pkg.product.currencyCode === p.currencyCode;
+    const comparavel =
+      mensal && mensal.pkg.product.currencyCode === p.currencyCode;
     const economiaPct =
       plano.id === "anual" && comparavel && mensal!.pkg.product.price > 0
         ? Math.round((1 - p.price / (mensal!.pkg.product.price * 12)) * 100)
@@ -313,7 +322,8 @@ export async function carregarOfertas(): Promise<PlanoOferta[]> {
       ...plano,
       preco: p.price,
       precoLabel: p.priceString,
-      precoMensalLabel: plano.id === "anual" ? (p.pricePerMonthString ?? undefined) : undefined,
+      precoMensalLabel:
+        plano.id === "anual" ? (p.pricePerMonthString ?? undefined) : undefined,
       moeda: p.currencyCode,
       trialDias: trialDias(p),
       economiaPct: economiaPct && economiaPct > 0 ? economiaPct : undefined,
@@ -325,7 +335,10 @@ export async function carregarOfertas(): Promise<PlanoOferta[]> {
 /** Planos de exibição enquanto a loja não respondeu (ou sem chave). */
 export function ofertasFallback(): PlanoOferta[] {
   const brl = (v: number) =>
-    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
+    new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(v);
   const mensal = planoById("mensal");
   return PLANOS.map((p) => {
     const economiaPct =
@@ -336,7 +349,8 @@ export function ofertasFallback(): PlanoOferta[] {
       ...p,
       preco: p.precoFallback,
       precoLabel: brl(p.precoFallback),
-      precoMensalLabel: p.id === "anual" ? brl(p.precoFallback / 12) : undefined,
+      precoMensalLabel:
+        p.id === "anual" ? brl(p.precoFallback / 12) : undefined,
       moeda: "BRL",
       trialDias: 0,
       economiaPct: economiaPct && economiaPct > 0 ? economiaPct : undefined,
@@ -441,7 +455,10 @@ export async function abrirResgateDeCodigo(): Promise<void> {
  * dashboard — e o que permite reencontrar a pessoa depois pela integração de
  * e-mail/webhook, sem nenhum SDK de tracking dentro do app.
  */
-export async function identificarNoBilling(email?: string, nome?: string): Promise<void> {
+export async function identificarNoBilling(
+  email?: string,
+  nome?: string,
+): Promise<void> {
   if (!API_KEY || !configurado) return;
   try {
     if (email) await Purchases.setEmail(email);
@@ -452,7 +469,9 @@ export async function identificarNoBilling(email?: string, nome?: string): Promi
 }
 
 /** Atributos livres — aparecem no perfil do cliente no dashboard. */
-export async function marcarAtributos(attrs: Record<string, string | null>): Promise<void> {
+export async function marcarAtributos(
+  attrs: Record<string, string | null>,
+): Promise<void> {
   if (!API_KEY || !configurado) return;
   try {
     await Purchases.setAttributes(attrs);
